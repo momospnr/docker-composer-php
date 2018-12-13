@@ -19,8 +19,10 @@ RUN set -ex \
         php7-fileinfo \
         php7-pdo \
         php7-pdo_pgsql \
+        php7-pdo_mysql \
         libmcrypt \
         postgresql-dev \
+        mysql-dev \
     && apk add --no-cache --virtual .build-php \
         tzdata \
         libpng-dev \
@@ -28,7 +30,7 @@ RUN set -ex \
     && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && docker-php-ext-install \
         gd \
-        pdo pdo_pgsql
+        pdo pdo_pgsql pdo_mysql
 
 # Composer
 RUN set -ex \
