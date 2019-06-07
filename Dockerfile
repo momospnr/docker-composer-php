@@ -11,7 +11,14 @@ RUN set -ex \
   curl \
   make \
   libintl \
+  freetype \
+  freetype-dev \
+  libjpeg-turbo \
+  libjpeg-turbo-dev \
   libc-dev \
+  jpeg-dev \
+  libpng \
+  libpng-dev \
   php7-gd \
   php7-gettext \
   php7-json \
@@ -40,7 +47,9 @@ RUN set -ex \
   && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
   && pecl install xdebug apcu \
   && docker-php-ext-install \
-  gd json mbstring pdo pdo_mysql exif\
+  json mbstring pdo pdo_mysql exif\
+  && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+  && docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-enable \
   xdebug
 
