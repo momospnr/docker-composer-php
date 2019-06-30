@@ -1,4 +1,4 @@
-FROM php:7.2.18-fpm-alpine3.9
+FROM php:7.2.19-fpm-alpine3.9
 
 LABEL maintainer="momospnr"
 
@@ -10,48 +10,82 @@ RUN set -ex \
   bash \
   curl \
   make \
-  libintl \
-  freetype \
-  freetype-dev \
-  libjpeg-turbo \
-  libjpeg-turbo-dev \
-  libc-dev \
-  jpeg-dev \
-  libpng \
-  libpng-dev \
-  php7-gd \
-  php7-gettext \
-  php7-json \
-  php7-mbstring \
-  php7-fileinfo \
-  php7-pdo \
-  php7-pdo_mysql \
-  php7-exif \
+  tar \
   libmcrypt \
-  mysql-dev \
-  sqlite-dev \
+  libpng \
+  libjpeg-turbo \
+  libxml2 \
+  libedit \
+  libxslt \
+  freetype \
+  jpeg \
+  gettext \
   ruby \
   ruby-dev \
   ruby-rdoc \
+  sqlite-dev \
   redis \
-  build-base \
   nodejs \
   yarn \
   git \
   unzip \
-  openssl \
-  && apk add --no-cache --virtual .build-php \
-  tzdata \
+  openssl
+
+RUN set -ex \
+  && apk add --no-cache --virtual build-dependencies \
+  build-base \
+  freetype-dev \
+  libjpeg-turbo-dev \
   libpng-dev \
+  gettext-dev \
+  mysql-dev \
   pcre-dev \
+  libc-dev \
+  jpeg-dev \
+  libpng-dev \
+  libxml2-dev \
+  libedit-dev \
+  libxslt-dev \
+  tzdata
+
+RUN set -ex \
   && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
   && pecl install xdebug apcu \
+  && docker-php-source extract \
+  && git clone -b 4.1.1 --depth 1 https://github.com/phpredis/phpredis.git /usr/src/php/ext/redis \
   && docker-php-ext-install \
-  json mbstring pdo pdo_mysql exif\
+  json \
+  exif \
+  xml \
+  pdo \
+  mbstring \
+  mysqli \
+  pdo_mysql \
+  redis \
+  opcache \
+  calendar \
+  ctype \
+  dom \
+  fileinfo \
+  ftp \
+  iconv \
+  phar \
+  posix \
+  readline \
+  shmop \
+  simplexml \
+  sockets \
+  sysvmsg \
+  sysvsem \
+  sysvshm \
+  tokenizer \
+  wddx \
+  xmlwriter \
+  && CFLAGS="-I/usr/src/php" docker-php-ext-install xmlreader \
   && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
   && docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-enable \
-  xdebug
+  xdebug apcu
 
 # Dockerize
 ENV DOCKERIZE_VERSION v0.6.1
@@ -69,6 +103,9 @@ RUN set -ex \
 RUN set -ex \
   && gem install mailcatcher etc
 
-COPY php.ini-development /usr/local/etc/php/conf.d/php.ini
+RUN set -ex \
+  && apk del --purge build-dependencies
+
+COPY php.ini-development /usr/local/etc/php/php.ini
 
 WORKDIR /src
